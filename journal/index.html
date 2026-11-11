@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mon Bujo</title>
+<meta name="description" content="Bullet journal et to-do list, hors ligne, sur ton téléphone.">
+<meta name="theme-color" content="#0E6270">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bujo">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-row">
+    <h1 id="title">Aujourd'hui</h1>
+    <button class="icon-btn" id="menuBtn" aria-label="Menu">⋮</button>
+  </div>
+  <div class="date-nav" id="dateNav">
+    <button class="icon-btn" id="prevDay" aria-label="Jour précédent">‹</button>
+    <button class="date-label" id="dateLabel"></button>
+    <button class="icon-btn" id="nextDay" aria-label="Jour suivant">›</button>
+  </div>
+  <div class="date-nav" id="monthNav" hidden>
+    <button class="icon-btn" id="prevMonth" aria-label="Mois précédent">‹</button>
+    <span class="date-label" id="monthLabel"></span>
+    <button class="icon-btn" id="nextMonth" aria-label="Mois suivant">›</button>
+  </div>
+  <div class="filters" id="todoFilters" hidden>
+    <button data-filter="open" class="chip on">À faire</button>
+    <button data-filter="done" class="chip">Faites</button>
+    <button data-filter="all" class="chip">Toutes</button>
+  </div>
+</header>
+
+<main>
+  <!-- JOURNAL DU JOUR -->
+  <section id="view-day" class="view">
+    <ul class="log" id="dayList"></ul>
+    <p class="empty" id="dayEmpty">Rien pour ce jour.<br>Note une tâche, un événement ou une idée ci-dessous.</p>
+    <details class="legend">
+      <summary>Légende des puces</summary>
+      <ul>
+        <li><b>•</b> tâche — touche la puce pour la cocher</li>
+        <li><b>×</b> tâche faite</li>
+        <li><b>›</b> tâche reportée</li>
+        <li><b>○</b> événement</li>
+        <li><b>–</b> note</li>
+        <li><b>★</b> important</li>
+      </ul>
+    </details>
+  </section>
+
+  <!-- TO-DO -->
+  <section id="view-todo" class="view" hidden>
+    <ul class="todos" id="todoList"></ul>
+    <p class="empty" id="todoEmpty">Aucune tâche ici 🎉</p>
+    <button class="link-btn" id="clearDone" hidden>Effacer les tâches faites</button>
+  </section>
+
+  <!-- MOIS -->
+  <section id="view-month" class="view" hidden>
+    <div class="cal-head"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+    <div class="cal" id="cal"></div>
+    <h2 class="sub">Objectifs du mois</h2>
+    <textarea id="monthGoals" rows="5" placeholder="Ce que je veux accomplir ce mois-ci…"></textarea>
+    <h2 class="sub">Tâches ouvertes du mois</h2>
+    <ul class="mini" id="monthOpen"></ul>
+  </section>
+</main>
+
+<form class="composer" id="composer" autocomplete="off">
+  <div class="types" id="typePicker">
+    <button type="button" data-type="task" class="type on" aria-label="Tâche">•</button>
+    <button type="button" data-type="event" class="type" aria-label="Événement">○</button>
+    <button type="button" data-type="note" class="type" aria-label="Note">–</button>
+  </div>
+  <input id="newText" placeholder="Nouvelle tâche…" enterkeyhint="done">
+  <button class="add" aria-label="Ajouter">+</button>
+</form>
+
+<nav class="tabs">
+  <button data-view="day" class="tab on"><span>📖</span>Journal</button>
+  <button data-view="todo" class="tab"><span>✓</span>To-do</button>
+  <button data-view="month" class="tab"><span>🗓</span>Mois</button>
+</nav>
+
+<!-- Feuille d'actions -->
+<div class="sheet-bg" id="sheetBg" hidden>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+</div>
+
+<input type="file" id="importFile" accept="application/json" hidden>
+<input type="date" id="datePicker" class="sr-only" tabindex="-1">
+<script src="app.js"></script>
+</body>
+</html>
