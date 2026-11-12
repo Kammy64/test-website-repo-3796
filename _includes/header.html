@@ -1,0 +1,27 @@
+{%- comment -%}
+  Copie compatible GitHub Pages (Jekyll 3) de l'en-tête du thème scribouilli/mimoza :
+  le thème utilise le filtre `find_exp`, qui n'existe qu'à partir de Jekyll 4.1
+  et fait échouer la construction du site.
+{%- endcomment -%}
+<a href="#main" class="skip-links">Accès direct au contenu</a>
+<header role="banner">
+  <div class="container">
+    <nav>
+      {%- assign homepage = site.html_pages | where: "path", "index.md" | first -%}
+      {%- assign site_title = site.title | default: homepage.title -%}
+      {%- if page.path != "index.md" %}
+      <a href="{{ '/' | relative_url }}" class="site-title">{{ site_title }}</a>
+      {%- else %}
+      <span class="site-title" aria-current="page">{{ site_title }}</span>
+      {%- endif %}
+      <a href="#nav" class="menu">Menu</a>
+      {%- assign menu_pages = site.html_pages | sort: "order" %}
+      <ul id="nav">
+        {%- for p in menu_pages -%}
+          {%- if p.path == "index.md" or p.in_menu == false -%}{%- continue -%}{%- endif %}
+        <li><a href="{{ p.url | relative_url }}"{% if p.url == page.url %} aria-current="page"{% endif %}>{{ p.title }}</a></li>
+        {%- endfor %}
+      </ul>
+    </nav>
+  </div>
+</header>
