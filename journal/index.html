@@ -4,11 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mon Bujo</title>
-<meta name="description" content="Bullet journal et to-do list, hors ligne, sur ton téléphone.">
-<meta name="theme-color" content="#0E6270">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="description" content="Bullet journal, to-do list, humeurs, habitudes, cycle et tarot — hors ligne, sur ton téléphone.">
+<meta name="theme-color" content="#8b6fd0">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Bujo">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -18,7 +17,8 @@
 <body>
 <header class="top">
   <div class="top-row">
-    <h1 id="title">Aujourd'hui</h1>
+    <h1 id="title" style="flex:1">Aujourd'hui</h1>
+    <span class="sync" id="sync">Chargement…</span>
     <button class="icon-btn" id="menuBtn" aria-label="Menu">⋮</button>
   </div>
   <div class="date-nav" id="dateNav">
@@ -26,6 +26,7 @@
     <button class="date-label" id="dateLabel"></button>
     <button class="icon-btn" id="nextDay" aria-label="Jour suivant">›</button>
   </div>
+  <div class="mood-row" id="moodRow"><button class="mood-btn" id="moodBtn"></button><button class="period-btn" id="periodBtn"></button></div>
   <div class="date-nav" id="monthNav" hidden>
     <button class="icon-btn" id="prevMonth" aria-label="Mois précédent">‹</button>
     <span class="date-label" id="monthLabel"></span>
@@ -41,8 +42,23 @@
 <main>
   <!-- JOURNAL DU JOUR -->
   <section id="view-day" class="view">
-    <ul class="log" id="dayList"></ul>
-    <p class="empty" id="dayEmpty">Rien pour ce jour.<br>Note une tâche, un événement ou une idée ci-dessous.</p>
+    <div class="space">
+      <h2 class="space-title"><span class="space-ico">✎</span>Mes tâches</h2>
+      <ul class="log" id="dayList"></ul>
+      <p class="empty small" id="dayEmpty">Rien pour l’instant. Note une tâche, un événement ou une idée en bas de l’écran.</p>
+    </div>
+    <div class="space joy">
+      <h2 class="space-title"><span class="space-ico">✿</span>Instants joyeux</h2>
+      <ul class="log" id="joyList"></ul>
+      <p class="empty small" id="joyEmpty">Un sourire, un bon café, un message gentil… Qu’est-ce qui t’a fait du bien aujourd’hui ?</p>
+      <button type="button" class="joy-add" id="joyAdd">＋ Ajouter un instant joyeux</button>
+    </div>
+    <div class="space habit">
+      <h2 class="space-title"><span class="space-ico">🌱</span>Mes habitudes<button type="button" class="space-act" id="habitManage">Gérer</button></h2>
+      <div class="habit-chips" id="habitChips"></div>
+      <p class="empty small" id="habitEmpty">Boire de l’eau, lire, marcher… Choisis les petites habitudes que tu veux suivre chaque jour.</p>
+      <button type="button" class="habit-add" id="habitAdd">＋ Choisir mes habitudes</button>
+    </div>
     <details class="legend">
       <summary>Légende des puces</summary>
       <ul>
@@ -51,6 +67,7 @@
         <li><b>›</b> tâche reportée</li>
         <li><b>○</b> événement</li>
         <li><b>–</b> note</li>
+        <li><b>✿</b> instant joyeux</li>
         <li><b>★</b> important</li>
       </ul>
     </details>
@@ -67,8 +84,23 @@
   <section id="view-month" class="view" hidden>
     <div class="cal-head"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
     <div class="cal" id="cal"></div>
+    <p class="cal-legend"><span><i class="lg-period"></i>règles</span><span><i class="lg-pred"></i>règles prévues</span><span><i class="lg-joy"></i>instant joyeux</span></p>
+    <h2 class="sub">🌱 Suivi d’habitudes</h2>
+    <div id="habitGrid"></div>
+    <h2 class="sub">Humeurs du mois</h2>
+    <div class="mood-sum" id="moodSum"></div>
+    <h2 class="sub">✿ Instants joyeux du mois</h2>
+    <ul class="mini joy-mini" id="monthJoys"></ul>
     <h2 class="sub">Objectifs du mois</h2>
     <textarea id="monthGoals" rows="5" placeholder="Ce que je veux accomplir ce mois-ci…"></textarea>
+    <p class="goals-state" id="goalsState"></p>
+    <button type="button" class="tarot-btn" id="tarotBtn" style="margin-top: 18px">
+      <span class="tarot-mini" aria-hidden="true">✦</span>
+      <span class="tarot-txt"><b>Tirer une carte de tarot</b><small>78 cartes · un petit message positif pour toi</small></span>
+      <span aria-hidden="true">›</span>
+    </button>
+    <h2 class="sub">🩸 Mon cycle</h2>
+    <div id="cycleBox"></div>
     <h2 class="sub">Tâches ouvertes du mois</h2>
     <ul class="mini" id="monthOpen"></ul>
   </section>
@@ -79,8 +111,9 @@
     <button type="button" data-type="task" class="type on" aria-label="Tâche">•</button>
     <button type="button" data-type="event" class="type" aria-label="Événement">○</button>
     <button type="button" data-type="note" class="type" aria-label="Note">–</button>
+    <button type="button" data-type="joy" class="type" aria-label="Instant joyeux">✿</button>
   </div>
-  <input id="newText" placeholder="Nouvelle tâche…" enterkeyhint="done">
+  <input id="newText" aria-label="Texte" placeholder="Nouvelle tâche…" enterkeyhint="done">
   <button class="add" aria-label="Ajouter">+</button>
 </form>
 
@@ -96,7 +129,6 @@
 </div>
 
 <input type="file" id="importFile" accept="application/json" hidden>
-<input type="date" id="datePicker" class="sr-only" tabindex="-1">
 <script src="app.js"></script>
 </body>
 </html>
