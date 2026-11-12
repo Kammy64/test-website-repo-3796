@@ -1,0 +1,20 @@
+{%- comment -%}
+  Copie compatible GitHub Pages (Jekyll 3) du pied de page du thème scribouilli/mimoza :
+  le `where_exp` avec « or » du thème fait échouer la construction du site.
+{%- endcomment -%}
+{%- assign homepage = site.html_pages | where: "path", "index.md" | first -%}
+<footer id="footer" role="contentinfo">
+  <div class="container">
+    <div id="nav">
+      <h2>Menu</h2>
+      <ul>
+        {%- assign nav_pages = site.html_pages | sort: "order" %}
+        <li><a href="{{ homepage.url | relative_url }}">{{ site.title | default: homepage.title }}</a></li>
+        {%- for nav_page in nav_pages -%}
+          {%- if nav_page.path == "index.md" or nav_page.in_menu == false -%}{%- continue -%}{%- endif %}
+        <li><a href="{{ nav_page.url | relative_url }}"{% if page.url == nav_page.url %} aria-current="page"{% endif %}>{{ nav_page.title }}</a></li>
+        {%- endfor %}
+      </ul>
+    </div>
+  </div>
+</footer>
