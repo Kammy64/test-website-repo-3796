@@ -16,7 +16,7 @@
       {%- endif %}
       <a href="#nav" class="menu">Menu</a>
       {%- assign menu_pages = site.html_pages | sort: "order" %}
-      <ul id="nav">
+      <ul>
         {%- for p in menu_pages -%}
           {%- if p.path == "index.md" or p.in_menu == false -%}{%- continue -%}{%- endif %}
         <li><a href="{{ p.url | relative_url }}"{% if p.url == page.url %} aria-current="page"{% endif %}>{{ p.title }}</a></li>
