@@ -1,5 +1,5 @@
 // Cache hors ligne de l'appli. Changer VERSION à chaque mise à jour des fichiers.
-const VERSION = 'bujo-v2';
+const VERSION = 'bujo-v3';
 const FILES = ['./', 'index.html', 'app.css', 'app.js', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', (e) => {

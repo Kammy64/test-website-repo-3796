@@ -365,3 +365,6 @@ li.joy .bullet { color: var(--joy); font-size: 20px; }
 .mood-sum span { background: var(--paper); border: 1px solid var(--line); border-radius: 99px; padding: 4px 12px; font-size: 15px; }
 .mood-sum i { display: inline-block; width: 12px; height: 12px; border-radius: 6px; vertical-align: -1px; margin-right: 4px; }
 
+
+.joy-pick-hint { margin: -6px 0 6px; font-size: 13px; color: var(--muted); }
+.joy-count { font-weight: normal; font-size: 0.8em; color: var(--muted); }

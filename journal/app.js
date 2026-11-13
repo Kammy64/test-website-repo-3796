@@ -277,25 +277,31 @@
     const joysM = [];
     Object.keys(db.entries).filter((k) => k.startsWith(month)).sort().forEach((k) =>
       db.entries[k].forEach((e) => { if (e.type === 'joy') joysM.push([k, e]); }));
-    $('#monthJoys').replaceChildren(...(joysM.length ? joysM.map(([k, e]) => {
+    const joyLi = ([k, e]) => {
       const li = el('li');
       const d = el('span'); d.textContent = fmtShort.format(parse(k));
       const t2 = el('span'); t2.textContent = (e.important ? '★ ' : '') + e.text;
       li.append(d, t2); li.onclick = () => { day = k; view = 'day'; render(); };
       return li;
-    }) : [Object.assign(el('li'), { textContent: 'Pas encore d’instant joyeux noté ce mois-ci' })]));
+    };
+    const noJoy = () => [Object.assign(el('li'), { textContent: 'Pas encore d’instant joyeux noté ce mois-ci' })];
+    // Sélection de 5 instants au hasard, identique toute la journée et renouvelée chaque jour.
+    const pick = dailyShuffle(joysM, todayIso() + '|' + month).slice(0, 5)
+      .sort((p, q) => (p[0] < q[0] ? -1 : p[0] > q[0] ? 1 : 0));
+    $('#monthJoys').replaceChildren(...(pick.length ? pick.map(joyLi) : noJoy()));
+    $('#monthJoysAll').replaceChildren(...(joysM.length ? joysM.map(joyLi) : noJoy()));
+    $('#monthJoyCount').textContent = joysM.length ? `(${joysM.length})` : '';
     $('#monthGoals').value = (db.months[month] && db.months[month].goals) || '';
+  }
 
-    const open = [];
-    Object.keys(db.entries).filter((k) => k.startsWith(month)).sort().forEach((k) =>
-      db.entries[k].forEach((e) => { if (e.type === 'task' && e.status === 'open') open.push([k, e]); }));
-    $('#monthOpen').replaceChildren(...(open.length ? open.map(([k, e]) => {
-      const li = el('li');
-      const d = el('span'); d.textContent = fmtShort.format(parse(k));
-      const s = el('span'); s.textContent = e.text;
-      li.append(d, s); li.onclick = () => { day = k; view = 'day'; render(); };
-      return li;
-    }) : [Object.assign(el('li'), { textContent: 'Aucune — bravo !' })]));
+  // Mélange déterministe : même graine (date du jour) → même ordre.
+  function dailyShuffle(arr, seedStr) {
+    let h = 2166136261;
+    for (let i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
+    const rand = () => { h += 0x6D2B79F5; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const out = arr.slice();
+    for (let i = out.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; }
+    return out;
   }
 
   function el(tag, cls) { const e = document.createElement(tag); if (cls) e.className = cls; return e; }
