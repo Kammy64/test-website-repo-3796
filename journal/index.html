@@ -73,7 +73,13 @@
     </details>
   </section>
 
-  <!-- TO-DO -->
+  <!-- INSTANTS JOYEUX DU MOIS -->
+  <section id="view-joy" class="view" hidden>
+    <h2 class="sub" style="margin-top:0">✿ Tous les instants joyeux du mois <span class="joy-count" id="monthJoyCount"></span></h2>
+    <ul class="mini joy-mini" id="monthJoysAll"></ul>
+  </section>
+
+  <!-- TO-DO (ancienne liste, conservée dans les données mais plus affichée) -->
   <section id="view-todo" class="view" hidden>
     <ul class="todos" id="todoList"></ul>
     <p class="empty" id="todoEmpty">Aucune tâche ici 🎉</p>
@@ -102,8 +108,8 @@
     </button>
     <h2 class="sub">🩸 Mon cycle</h2>
     <div id="cycleBox"></div>
-    <h2 class="sub">✿ Tous les instants joyeux du mois <span class="joy-count" id="monthJoyCount"></span></h2>
-    <ul class="mini joy-mini" id="monthJoysAll"></ul>
+    <h2 class="sub">Tâches ouvertes du mois</h2>
+    <ul class="mini" id="monthOpen"></ul>
   </section>
 </main>
 
@@ -120,7 +126,7 @@
 
 <nav class="tabs">
   <button data-view="day" class="tab on"><span>📖</span>Journal</button>
-  <button data-view="todo" class="tab"><span>✓</span>To-do</button>
+  <button data-view="joy" class="tab"><span>✿</span>Joies</button>
   <button data-view="month" class="tab"><span>🗓</span>Mois</button>
 </nav>
 
