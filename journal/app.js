@@ -134,20 +134,22 @@
     $$('.view').forEach((v) => (v.hidden = v.id !== 'view-' + view));
     $('#dateNav').hidden = view !== 'day';
     $('#moodRow').hidden = view !== 'day';
-    $('#monthNav').hidden = view !== 'month';
+    $('#monthNav').hidden = view !== 'month' && view !== 'joy';
     $('#todoFilters').hidden = view !== 'todo';
     $('#composer').hidden = view === 'month';
     $('#typePicker').hidden = view !== 'day';
     $('#title').textContent = view === 'day' ? (day === todayIso() ? 'Aujourd’hui' : 'Journal')
-      : view === 'todo' ? 'To-do' : 'Mois';
+      : view === 'todo' ? 'To-do' : view === 'joy' ? 'Instants joyeux' : 'Mois';
     updatePlaceholder();
     if (view === 'day') renderDay();
     if (view === 'todo') renderTodos();
     if (view === 'month') renderMonth();
+    if (view === 'joy') renderJoys();
   }
 
   function updatePlaceholder() {
     $('#newText').placeholder = view === 'todo' ? 'Nouvelle tâche…'
+      : view === 'joy' ? 'Un instant joyeux d’aujourd’hui…'
       : { task: 'Nouvelle tâche…', event: 'Nouvel événement…', note: 'Nouvelle note…', joy: 'Un instant joyeux…' }[type];
   }
 
@@ -277,13 +279,18 @@
     const joysM = [];
     Object.keys(db.entries).filter((k) => k.startsWith(month)).sort().forEach((k) =>
       db.entries[k].forEach((e) => { if (e.type === 'joy') joysM.push([k, e]); }));
-    $('#monthJoys').replaceChildren(...(joysM.length ? joysM.map(([k, e]) => {
+    const joyLi = ([k, e]) => {
       const li = el('li');
       const d = el('span'); d.textContent = fmtShort.format(parse(k));
       const t2 = el('span'); t2.textContent = (e.important ? '★ ' : '') + e.text;
       li.append(d, t2); li.onclick = () => { day = k; view = 'day'; render(); };
       return li;
-    }) : [Object.assign(el('li'), { textContent: 'Pas encore d’instant joyeux noté ce mois-ci' })]));
+    };
+    const noJoy = () => [Object.assign(el('li'), { textContent: 'Pas encore d’instant joyeux noté ce mois-ci' })];
+    // Sélection de 5 instants au hasard, identique toute la journée et renouvelée chaque jour.
+    const pick = dailyShuffle(joysM, todayIso() + '|' + month).slice(0, 5)
+      .sort((p, q) => (p[0] < q[0] ? -1 : p[0] > q[0] ? 1 : 0));
+    $('#monthJoys').replaceChildren(...(pick.length ? pick.map(joyLi) : noJoy()));
     $('#monthGoals').value = (db.months[month] && db.months[month].goals) || '';
 
     const open = [];
@@ -296,6 +303,33 @@
       li.append(d, s); li.onclick = () => { day = k; view = 'day'; render(); };
       return li;
     }) : [Object.assign(el('li'), { textContent: 'Aucune — bravo !' })]));
+  }
+
+  // Onglet « Joies » : tous les instants joyeux du mois affiché.
+  function renderJoys() {
+    const [y, m] = month.split('-').map(Number);
+    $('#monthLabel').textContent = fmtMonth.format(new Date(y, m - 1, 1));
+    const joysM = [];
+    Object.keys(db.entries).filter((k) => k.startsWith(month)).sort().forEach((k) =>
+      db.entries[k].forEach((e) => { if (e.type === 'joy') joysM.push([k, e]); }));
+    $('#monthJoysAll').replaceChildren(...(joysM.length ? joysM.map(([k, e]) => {
+      const li = el('li');
+      const d = el('span'); d.textContent = fmtShort.format(parse(k));
+      const t2 = el('span'); t2.textContent = (e.important ? '★ ' : '') + e.text;
+      li.append(d, t2); li.onclick = () => { day = k; view = 'day'; render(); };
+      return li;
+    }) : [Object.assign(el('li'), { textContent: 'Pas encore d’instant joyeux noté ce mois-ci' })]));
+    $('#monthJoyCount').textContent = joysM.length ? `(${joysM.length})` : '';
+  }
+
+  // Mélange déterministe : même graine (date du jour) → même ordre.
+  function dailyShuffle(arr, seedStr) {
+    let h = 2166136261;
+    for (let i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
+    const rand = () => { h += 0x6D2B79F5; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const out = arr.slice();
+    for (let i = out.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; }
+    return out;
   }
 
   function el(tag, cls) { const e = document.createElement(tag); if (cls) e.className = cls; return e; }
@@ -779,7 +813,6 @@
       isTask && e.status === 'open' && ['📅 Reporter à une date…', () => pickDate(addDays(day, 1), (d) => migrate(e, d))],
       isTask && e.status !== 'cancelled' && ['🚫 Annuler (n’est plus utile)', () => { e.status = 'cancelled'; done(); }],
       isTask && e.status !== 'open' && ['↺ Remettre à faire', () => { e.status = 'open'; done(); }],
-      isTask && ['✓ Copier dans la to-do', () => { addTodo(e.text); save(); toast('Ajoutée à la to-do'); }],
       !isTask && ['• Transformer en tâche', () => { e.type = 'task'; e.status = 'open'; done(); }],
       e.type !== 'event' && ['○ Transformer en événement', () => { e.type = 'event'; done(); }],
       e.type !== 'note' && ['– Transformer en note', () => { e.type = 'note'; done(); }],
@@ -903,7 +936,12 @@
     e.preventDefault();
     const input = $('#newText'); const v = input.value.trim();
     if (!v) return;
-    if (view === 'todo') addTodo(v); else addEntry(v);
+    if (view === 'todo') addTodo(v);
+    else if (view === 'joy') {
+      const t = todayIso();
+      (db.entries[t] = db.entries[t] || []).push({ id: uid(), type: 'joy', text: v, status: 'open', important: false });
+      month = t.slice(0, 7);
+    } else addEntry(v);
     input.value = ''; save(); render();
     const main = document.querySelector('main'); main.scrollTop = main.scrollHeight;
   });

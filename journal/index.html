@@ -73,7 +73,13 @@
     </details>
   </section>
 
-  <!-- TO-DO -->
+  <!-- INSTANTS JOYEUX DU MOIS -->
+  <section id="view-joy" class="view" hidden>
+    <h2 class="sub" style="margin-top:0">✿ Tous les instants joyeux du mois <span class="joy-count" id="monthJoyCount"></span></h2>
+    <ul class="mini joy-mini" id="monthJoysAll"></ul>
+  </section>
+
+  <!-- TO-DO (ancienne liste, conservée dans les données mais plus affichée) -->
   <section id="view-todo" class="view" hidden>
     <ul class="todos" id="todoList"></ul>
     <p class="empty" id="todoEmpty">Aucune tâche ici 🎉</p>
@@ -89,7 +95,8 @@
     <div id="habitGrid"></div>
     <h2 class="sub">Humeurs du mois</h2>
     <div class="mood-sum" id="moodSum"></div>
-    <h2 class="sub">✿ Instants joyeux du mois</h2>
+    <h2 class="sub">✿ 5 instants joyeux au hasard</h2>
+    <p class="joy-pick-hint">Une nouvelle sélection chaque jour ✨</p>
     <ul class="mini joy-mini" id="monthJoys"></ul>
     <h2 class="sub">Objectifs du mois</h2>
     <textarea id="monthGoals" rows="5" placeholder="Ce que je veux accomplir ce mois-ci…"></textarea>
@@ -119,7 +126,7 @@
 
 <nav class="tabs">
   <button data-view="day" class="tab on"><span>📖</span>Journal</button>
-  <button data-view="todo" class="tab"><span>✓</span>To-do</button>
+  <button data-view="joy" class="tab"><span>✿</span>Joies</button>
   <button data-view="month" class="tab"><span>🗓</span>Mois</button>
 </nav>
 
