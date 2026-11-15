@@ -368,3 +368,10 @@ li.joy .bullet { color: var(--joy); font-size: 20px; }
 
 .joy-pick-hint { margin: -6px 0 6px; font-size: 13px; color: var(--muted); }
 .joy-count { font-weight: normal; font-size: 0.8em; color: var(--muted); }
+.dream-mini li { align-items: flex-start; }
+.dream-mini li span:first-child { color: #7b6bc4; }
+.dream-mini .txt { flex: 1; white-space: pre-wrap; }
+.cal button .moon { position: absolute; top: 1px; right: 3px; font-size: 10px; line-height: 1; color: #7b6bc4; }
+.cal button .drop ~ .moon { right: auto; left: 3px; }
+.cal button.mood .moon { color: #5a4a9e; }
+.lg-moon { color: #7b6bc4; font-weight: normal; margin-right: 4px; }

@@ -79,6 +79,13 @@
     <ul class="mini joy-mini" id="monthJoysAll"></ul>
   </section>
 
+  <!-- RÊVES DU MOIS -->
+  <section id="view-dream" class="view" hidden>
+    <h2 class="sub" style="margin-top:0">☾ Mes rêves du mois <span class="joy-count" id="dreamCount"></span></h2>
+    <ul class="mini dream-mini" id="dreamList"></ul>
+    <p class="empty small" id="dreamEmpty">Tu as fait un rêve ? Note-le en bas avant qu’il s’envole 🌙</p>
+  </section>
+
   <!-- TO-DO (ancienne liste, conservée dans les données mais plus affichée) -->
   <section id="view-todo" class="view" hidden>
     <ul class="todos" id="todoList"></ul>
@@ -90,7 +97,7 @@
   <section id="view-month" class="view" hidden>
     <div class="cal-head"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
     <div class="cal" id="cal"></div>
-    <p class="cal-legend"><span><i class="lg-period"></i>règles</span><span><i class="lg-pred"></i>règles prévues</span><span><i class="lg-joy"></i>instant joyeux</span></p>
+    <p class="cal-legend"><span><i class="lg-period"></i>règles</span><span><i class="lg-pred"></i>règles prévues</span><span><i class="lg-joy"></i>instant joyeux</span><span><b class="lg-moon">☾</b>rêve</span></p>
     <h2 class="sub">🌱 Suivi d’habitudes</h2>
     <div id="habitGrid"></div>
     <h2 class="sub">Humeurs du mois</h2>
@@ -127,6 +134,7 @@
 <nav class="tabs">
   <button data-view="day" class="tab on"><span>📖</span>Journal</button>
   <button data-view="joy" class="tab"><span>✿</span>Joies</button>
+  <button data-view="dream" class="tab"><span>☾</span>Rêves</button>
   <button data-view="month" class="tab"><span>🗓</span>Mois</button>
 </nav>
 

@@ -125,7 +125,7 @@
   let filter = 'open';
   let datePickCb = null;
 
-  const BULLET = { task: '•', event: '○', note: '–', joy: '✿' };
+  const BULLET = { task: '•', event: '○', note: '–', joy: '✿', dream: '☾' };
   const TASK_GLYPH = { open: '•', done: '×', migrated: '›', cancelled: '•' };
 
   // ---------- Rendu ----------
@@ -134,22 +134,24 @@
     $$('.view').forEach((v) => (v.hidden = v.id !== 'view-' + view));
     $('#dateNav').hidden = view !== 'day';
     $('#moodRow').hidden = view !== 'day';
-    $('#monthNav').hidden = view !== 'month' && view !== 'joy';
+    $('#monthNav').hidden = !['month', 'joy', 'dream'].includes(view);
     $('#todoFilters').hidden = view !== 'todo';
     $('#composer').hidden = view === 'month';
     $('#typePicker').hidden = view !== 'day';
     $('#title').textContent = view === 'day' ? (day === todayIso() ? 'Aujourd’hui' : 'Journal')
-      : view === 'todo' ? 'To-do' : view === 'joy' ? 'Instants joyeux' : 'Mois';
+      : view === 'todo' ? 'To-do' : view === 'joy' ? 'Instants joyeux' : view === 'dream' ? 'Mes rêves' : 'Mois';
     updatePlaceholder();
     if (view === 'day') renderDay();
     if (view === 'todo') renderTodos();
     if (view === 'month') renderMonth();
     if (view === 'joy') renderJoys();
+    if (view === 'dream') renderDreams();
   }
 
   function updatePlaceholder() {
     $('#newText').placeholder = view === 'todo' ? 'Nouvelle tâche…'
       : view === 'joy' ? 'Un instant joyeux d’aujourd’hui…'
+      : view === 'dream' ? 'J’ai rêvé que…'
       : { task: 'Nouvelle tâche…', event: 'Nouvel événement…', note: 'Nouvelle note…', joy: 'Un instant joyeux…' }[type];
   }
 
@@ -176,7 +178,7 @@
       li.append(b, textCell(e, () => { save(); renderDay(); }, () => removeEntry(e)), moreBtn(() => openEntryMenu(e)));
       return li;
     };
-    const list = all.filter((e) => e.type !== 'joy');
+    const list = all.filter((e) => e.type !== 'joy' && e.type !== 'dream');
     const joys = all.filter((e) => e.type === 'joy');
     $('#dayList').replaceChildren(...list.map(row));
     $('#joyList').replaceChildren(...joys.map(row));
@@ -253,7 +255,8 @@
     const info = cycleInfo();
     for (let d = 1; d <= nDays; d++) {
       const key = `${month}-${pad(d)}`;
-      const list = db.entries[key] || [];
+      const list = (db.entries[key] || []).filter((e) => e.type !== 'dream');
+      const hasDream = (db.entries[key] || []).some((e) => e.type === 'dream');
       const md = db.moods[key];
       const b = el('button', (key === t ? 'today' : '') + (md && md.color ? ' mood' : ''));
       if (md && md.color) b.style.background = md.color;
@@ -261,6 +264,7 @@
       if (md && md.emoji) { const em = el('em'); em.textContent = md.emoji; b.append(em); }
       if (db.period[key]) { b.classList.add('period'); const dr = el('span', 'drop'); dr.textContent = '🩸'; b.append(dr); }
       else if (info.predicted.has(key)) b.classList.add('pred');
+      if (hasDream) { const mo = el('span', 'moon'); mo.textContent = '☾'; mo.title = 'Rêve noté'; b.append(mo); }
       const dots = el('i');
       const open = list.filter((e) => e.type === 'task' && e.status === 'open').length;
       const hasJoy = list.some((e) => e.type === 'joy');
@@ -303,6 +307,24 @@
       li.append(d, s); li.onclick = () => { day = k; view = 'day'; render(); };
       return li;
     }) : [Object.assign(el('li'), { textContent: 'Aucune — bravo !' })]));
+  }
+
+  // Onglet « Rêves » : les rêves du mois affiché, du plus récent au plus ancien.
+  function renderDreams() {
+    const [y, m] = month.split('-').map(Number);
+    $('#monthLabel').textContent = fmtMonth.format(new Date(y, m - 1, 1));
+    const items = [];
+    Object.keys(db.entries).filter((k) => k.startsWith(month)).sort().reverse().forEach((k) =>
+      db.entries[k].forEach((e) => { if (e.type === 'dream') items.push([k, e]); }));
+    $('#dreamList').replaceChildren(...items.map(([k, e]) => {
+      const li = el('li');
+      const d = el('span'); d.textContent = fmtShort.format(parse(k));
+      li.append(d, textCell(e, () => { save([k]); renderDreams(); }, () => removeEntry(e, k)),
+        moreBtn(() => sheet(e.text, [['🗑 Supprimer ce rêve', () => removeEntry(e, k), 'danger']])));
+      return li;
+    }));
+    $('#dreamEmpty').hidden = items.length > 0;
+    $('#dreamCount').textContent = items.length ? `(${items.length})` : '';
   }
 
   // Onglet « Joies » : tous les instants joyeux du mois affiché.
@@ -940,6 +962,10 @@
     else if (view === 'joy') {
       const t = todayIso();
       (db.entries[t] = db.entries[t] || []).push({ id: uid(), type: 'joy', text: v, status: 'open', important: false });
+      month = t.slice(0, 7);
+    } else if (view === 'dream') {
+      const t = todayIso();
+      (db.entries[t] = db.entries[t] || []).push({ id: uid(), type: 'dream', text: v, status: 'open', important: false });
       month = t.slice(0, 7);
     } else addEntry(v);
     input.value = ''; save(); render();
