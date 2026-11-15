@@ -256,6 +256,7 @@
     for (let d = 1; d <= nDays; d++) {
       const key = `${month}-${pad(d)}`;
       const list = (db.entries[key] || []).filter((e) => e.type !== 'dream');
+      const hasDream = (db.entries[key] || []).some((e) => e.type === 'dream');
       const md = db.moods[key];
       const b = el('button', (key === t ? 'today' : '') + (md && md.color ? ' mood' : ''));
       if (md && md.color) b.style.background = md.color;
@@ -263,6 +264,7 @@
       if (md && md.emoji) { const em = el('em'); em.textContent = md.emoji; b.append(em); }
       if (db.period[key]) { b.classList.add('period'); const dr = el('span', 'drop'); dr.textContent = '🩸'; b.append(dr); }
       else if (info.predicted.has(key)) b.classList.add('pred');
+      if (hasDream) { const mo = el('span', 'moon'); mo.textContent = '☾'; mo.title = 'Rêve noté'; b.append(mo); }
       const dots = el('i');
       const open = list.filter((e) => e.type === 'task' && e.status === 'open').length;
       const hasJoy = list.some((e) => e.type === 'joy');
